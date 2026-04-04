@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
+<title>ArduinoPanel</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Space+Mono:wght@400;700&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+<style>
+  :root {
+    --bg0   : #0b0d0f;
+    --bg1   : #111417;
+    --bg2   : #181c20;
+    --bg3   : #1e2328;
+    --line  : #2a2f36;
+    --muted : #4a5260;
+    --dim   : #8492a6;
+    --text  : #dce3ed;
+    --white : #f0f4fa;
+    --cyan  : #00d4ff;
+    --green : #00e676;
+    --amber : #ffab00;
+    --red   : #ff4d4d;
+    --mono  : 'Space Mono', monospace;
+    --sans  : 'DM Sans', sans-serif;
+    --r     : 12px;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+
+  body {
+    font-family: var(--sans);
+    background: var(--bg0);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Noise texture overlay ── */
+  body::before {
+    content: '';
+    position: fixed; inset: 0;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='1'/%3E%3C/svg%3E");
+    opacity: 0.025;
+    pointer-events: none;
+    z-index: 999;
+  }
+
+  /* ── Header ── */
+  header {
+    position: sticky; top: 0; z-index: 100;
+    background: rgba(11,13,15,0.92);
+    backdrop-filter: blur(16px);
+    border-bottom: 1px solid var(--line);
+    padding: 14px 20px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .logo {
+    font-family: var(--mono);
+    font-size: 15px;
+    color: var(--white);
+    letter-spacing: 0.04em;
+  }
+  .logo span { color: var(--cyan); }
+  .badge-sim {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    background: rgba(255,171,0,0.12);
+    color: var(--amber);
+    border: 1px solid rgba(255,171,0,0.25);
+    letter-spacing: 0.06em;
+    display: none;
+  }
+  .badge-sim.show { display: inline-block; }
+
+  /* ── Connection pill ── */
+  .conn-pill {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 12px; font-weight: 500; color: var(--dim);
+  }
+  .conn-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--muted);
+    transition: background .4s;
+  }
+  .conn-dot.on  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+  .conn-dot.off { background: var(--red); }
+
+  /* ── Layout ── */
+  main { max-width: 480px; margin: 0 auto; padding: 20px 16px 80px; }
+
+  /* ── Section label ── */
+  .label {
+    font-family: var(--mono);
+    font-size: 10px;
+    letter-spacing: 0.12em;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin: 24px 0 10px;
+  }
+
+  /* ── Sensor strip ── */
+  .sensor-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 8px; }
+  .sensor-card {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 14px 12px;
+    position: relative; overflow: hidden;
+  }
+  .sensor-card::after {
+    content: '';
+    position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: var(--cyan);
+    opacity: 0.3;
+  }
+  .s-val {
+    font-family: var(--mono);
+    font-size: 18px;
+    font-weight: 700;
+    color: var(--cyan);
+    line-height: 1.2;
+  }
+  .s-unit { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  .s-label { font-size: 11px; color: var(--dim); margin-top: 6px; }
+
+  /* ── Toggle controls ── */
+  .ctrl-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+  .ctrl-card {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 16px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s, transform .1s;
+    user-select: none;
+    -webkit-user-select: none;
+  }
+  .ctrl-card:active { transform: scale(0.97); }
+  .ctrl-card.active {
+    border-color: var(--cyan);
+    background: rgba(0,212,255,0.05);
+  }
+  .ctrl-top { display: flex; align-items: center; justify-content: space-between; margin-bottom: 12px; }
+  .ctrl-icon {
+    width: 36px; height: 36px;
+    border-radius: 8px;
+    background: var(--bg3);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 17px;
+    border: 1px solid var(--line);
+  }
+  .toggle-pill {
+    width: 38px; height: 20px;
+    border-radius: 10px;
+    background: var(--bg3);
+    border: 1px solid var(--line);
+    position: relative;
+    transition: background .25s, border-color .25s;
+  }
+  .toggle-pill::after {
+    content: '';
+    position: absolute;
+    top: 2px; left: 2px;
+    width: 14px; height: 14px;
+    border-radius: 50%;
+    background: var(--muted);
+    transition: transform .25s, background .25s;
+  }
+  .ctrl-card.active .toggle-pill { background: rgba(0,212,255,0.15); border-color: var(--cyan); }
+  .ctrl-card.active .toggle-pill::after { transform: translateX(18px); background: var(--cyan); }
+  .ctrl-name { font-size: 14px; font-weight: 500; color: var(--text); }
+  .ctrl-state { font-family: var(--mono); font-size: 11px; color: var(--muted); margin-top: 3px; }
+  .ctrl-card.active .ctrl-state { color: var(--cyan); }
+
+  /* ── Command input ── */
+  .cmd-wrap {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 4px 4px 4px 16px;
+    display: flex; align-items: center; gap: 8px;
+  }
+  .cmd-wrap:focus-within { border-color: var(--cyan); }
+  .cmd-input {
+    flex: 1;
+    background: none;
+    border: none;
+    outline: none;
+    font-family: var(--mono);
+    font-size: 13px;
+    color: var(--white);
+    padding: 10px 0;
+    caret-color: var(--cyan);
+  }
+  .cmd-input::placeholder { color: var(--muted); }
+  .cmd-btn {
+    background: var(--cyan);
+    color: var(--bg0);
+    border: none;
+    border-radius: 8px;
+    padding: 10px 18px;
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: opacity .2s, transform .1s;
+    letter-spacing: 0.04em;
+  }
+  .cmd-btn:active { transform: scale(0.96); opacity: 0.85; }
+
+  /* ── Log ── */
+  .log-box {
+    background: var(--bg1);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    height: 180px;
+    overflow-y: auto;
+    padding: 12px;
+    font-family: var(--mono);
+    font-size: 11px;
+    line-height: 1.8;
+    scrollbar-width: thin;
+    scrollbar-color: var(--line) transparent;
+  }
+  .log-entry { display: flex; gap: 10px; }
+  .log-time { color: var(--muted); flex-shrink: 0; }
+  .log-msg  { color: var(--dim); word-break: break-all; }
+  .log-msg.ok  { color: var(--green); }
+  .log-msg.err { color: var(--red); }
+
+  /* ── ESP status card ── */
+  .esp-card {
+    background: var(--bg2);
+    border: 1px solid var(--line);
+    border-radius: var(--r);
+    padding: 14px 16px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .esp-info { font-size: 13px; color: var(--dim); }
+  .esp-info strong { color: var(--text); display: block; font-size: 14px; margin-bottom: 2px; }
+  .esp-badge {
+    font-family: var(--mono);
+    font-size: 10px;
+    padding: 4px 10px;
+    border-radius: 6px;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+  }
+  .esp-badge.sim  { background: rgba(255,171,0,0.12); color: var(--amber); border: 1px solid rgba(255,171,0,0.2); }
+  .esp-badge.live { background: rgba(0,230,118,0.1); color: var(--green); border: 1px solid rgba(0,230,118,0.2); }
+  .esp-badge.off  { background: rgba(255,77,77,0.1); color: var(--red); border: 1px solid rgba(255,77,77,0.2); }
+
+  /* ── Fade-in anim ── */
+  @keyframes fadeUp { from { opacity:0; transform:translateY(10px); } to { opacity:1; transform:translateY(0); } }
+  .sensor-row, .ctrl-grid, .cmd-wrap, .log-box, .esp-card {
+    animation: fadeUp .35s ease both;
+  }
+  .sensor-row   { animation-delay: .05s; }
+  .ctrl-grid    { animation-delay: .1s; }
+  .cmd-wrap     { animation-delay: .15s; }
+  .log-box      { animation-delay: .2s; }
+  .esp-card     { animation-delay: .25s; }
+
+  /* ── Pulse animation for sensor values ── */
+  @keyframes valuePop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.08)} }
+  .pop { animation: valuePop .25s ease; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo">Arduino<span>Panel</span></div>
+  <div style="display:flex;align-items:center;gap:10px;">
+    <span class="badge-sim" id="badge-sim">SIMULASI</span>
+    <div class="conn-pill">
+      <div class="conn-dot" id="conn-dot"></div>
+      <span id="conn-text">Menghubungkan</span>
+    </div>
+  </div>
+</header>
+
+<main>
+
+  <!-- ESP Status -->
+  <p class="label">Status perangkat</p>
+  <div class="esp-card">
+    <div class="esp-info">
+      <strong id="esp-name">ESP32</strong>
+      <span id="esp-ip">Mengecek koneksi...</span>
+    </div>
+    <span class="esp-badge sim" id="esp-badge">—</span>
+  </div>
+
+  <!-- Sensor -->
+  <p class="label">Data sensor</p>
+  <div class="sensor-row">
+    <div class="sensor-card">
+      <div class="s-val" id="s-suhu">—</div>
+      <div class="s-unit">°C</div>
+      <div class="s-label">Suhu</div>
+    </div>
+    <div class="sensor-card">
+      <div class="s-val" id="s-volt">—</div>
+      <div class="s-unit">Volt</div>
+      <div class="s-label">Tegangan</div>
+    </div>
+    <div class="sensor-card">
+      <div class="s-val" id="s-raw">—</div>
+      <div class="s-unit">ADC</div>
+      <div class="s-label">Raw</div>
+    </div>
+  </div>
+
+  <!-- Controls -->
+  <p class="label">Kontrol pin</p>
+  <div class="ctrl-grid">
+    <div class="ctrl-card" id="card-led" onclick="togglePin('LED')">
+      <div class="ctrl-top">
+        <div class="ctrl-icon">💡</div>
+        <div class="toggle-pill"></div>
+      </div>
+      <div class="ctrl-name">LED</div>
+      <div class="ctrl-state" id="st-led">OFF</div>
+    </div>
+    <div class="ctrl-card" id="card-relay" onclick="togglePin('RELAY')">
+      <div class="ctrl-top">
+        <div class="ctrl-icon">🔌</div>
+        <div class="toggle-pill"></div>
+      </div>
+      <div class="ctrl-name">Relay</div>
+      <div class="ctrl-state" id="st-relay">OFF</div>
+    </div>
+    <div class="ctrl-card" id="card-buzzer" onclick="togglePin('BUZZER')">
+      <div class="ctrl-top">
+        <div class="ctrl-icon">🔔</div>
+        <div class="toggle-pill"></div>
+      </div>
+      <div class="ctrl-name">Buzzer</div>
+      <div class="ctrl-state" id="st-buzzer">OFF</div>
+    </div>
+    <div class="ctrl-card" onclick="sendCmd('STATUS')">
+      <div class="ctrl-top">
+        <div class="ctrl-icon">📡</div>
+      </div>
+      <div class="ctrl-name">Ping ESP</div>
+      <div class="ctrl-state">Ketuk untuk cek</div>
+    </div>
+  </div>
+
+  <!-- Custom command -->
+  <p class="label">Perintah custom</p>
+  <div class="cmd-wrap">
+    <input class="cmd-input" id="cmd-input" type="text" placeholder="Contoh: SERVO_90"
+           onkeydown="if(event.key==='Enter')sendCustom()"/>
+    <button class="cmd-btn" onclick="sendCustom()">KIRIM</button>
+  </div>
+
+  <!-- Log -->
+  <p class="label">Log aktivitas</p>
+  <div class="log-box" id="log-box">
+    <div class="log-entry">
+      <span class="log-time">--:--:--</span>
+      <span class="log-msg">Menunggu koneksi...</span>
+    </div>
+  </div>
+
+</main>
+
+<script src="/socket.io/socket.io.js"></script>
+<script>
+  const socket = io();
+  const pins = { LED: false, RELAY: false, BUZZER: false };
+
+  // ── Socket events ─────────────────────────────────────────
+  socket.on('connect', () => {
+    setConn(true);
+    addLog('Terhubung ke server', 'ok');
+  });
+
+  socket.on('disconnect', () => {
+    setConn(false);
+    addLog('Koneksi terputus', 'err');
+  });
+
+  socket.on('sensor-data', (d) => updateSensor(d));
+
+  socket.on('state-update', (s) => {
+    if (s.sensor) updateSensor(s.sensor);
+    setPin('LED',    s.led);
+    setPin('RELAY',  s.relay);
+    setPin('BUZZER', s.buzzer);
+  });
+
+  socket.on('log', (entry) => addLog(entry.msg, 'ok'));
+  socket.on('esp-reply', (msg) => addLog('← ' + msg, 'ok'));
+
+  // ── Fetch status ESP ──────────────────────────────────────
+  async function checkStatus() {
+    try {
+      const r = await fetch('/api/status');
+      const d = await r.json();
+      const badge = document.getElementById('esp-badge');
+      const ipEl  = document.getElementById('esp-ip');
+      if (d.simMode) {
+        badge.textContent = 'SIMULASI';
+        badge.className   = 'esp-badge sim';
+        ipEl.textContent  = 'Mode simulasi aktif – ESP belum tersambung';
+        document.getElementById('badge-sim').classList.add('show');
+      } else if (d.online) {
+        badge.textContent = 'ONLINE';
+        badge.className   = 'esp-badge live';
+        ipEl.textContent  = d.ip;
+      } else {
+        badge.textContent = 'OFFLINE';
+        badge.className   = 'esp-badge off';
+        ipEl.textContent  = d.ip + ' (tidak merespons)';
+      }
+    } catch {}
+  }
+  checkStatus();
+  setInterval(checkStatus, 8000);
+
+  // ── Helpers ───────────────────────────────────────────────
+  function setConn(on) {
+    document.getElementById('conn-dot').className = 'conn-dot ' + (on ? 'on' : 'off');
+    document.getElementById('conn-text').textContent = on ? 'Terhubung' : 'Terputus';
+  }
+
+  function updateSensor(d) {
+    const set = (id, val) => {
+      const el = document.getElementById(id);
+      if (el && el.textContent !== String(val)) {
+        el.textContent = val;
+        el.classList.remove('pop');
+        void el.offsetWidth;
+        el.classList.add('pop');
+      }
+    };
+    set('s-suhu', d.suhu ?? '—');
+    set('s-volt', d.voltage ?? '—');
+    set('s-raw',  d.raw ?? '—');
+  }
+
+  function setPin(name, state) {
+    pins[name] = state;
+    const card = document.getElementById('card-' + name.toLowerCase());
+    const st   = document.getElementById('st-'   + name.toLowerCase());
+    if (!card) return;
+    card.classList.toggle('active', !!state);
+    st.textContent = state ? 'ON' : 'OFF';
+  }
+
+  function togglePin(name) {
+    const next = !pins[name];
+    sendCmd(name + '_' + (next ? 'ON' : 'OFF'));
+  }
+
+  function sendCmd(cmd) {
+    if (!cmd.trim()) return;
+    addLog('→ ' + cmd);
+    socket.emit('send-command', cmd);
+  }
+
+  function sendCustom() {
+    const inp = document.getElementById('cmd-input');
+    const val = inp.value.trim().toUpperCase();
+    if (!val) return;
+    sendCmd(val);
+    inp.value = '';
+  }
+
+  function addLog(msg, cls = '') {
+    const box = document.getElementById('log-box');
+    const now = new Date().toLocaleTimeString('id-ID');
+    const row = document.createElement('div');
+    row.className = 'log-entry';
+    row.innerHTML = `<span class="log-time">${now}</span><span class="log-msg ${cls}">${msg}</span>`;
+    box.insertBefore(row, box.firstChild);
+    if (box.children.length > 60) box.removeChild(box.lastChild);
+  }
+</script>
+</body>
+</html>
