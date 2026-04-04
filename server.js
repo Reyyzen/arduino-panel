@@ -14,7 +14,7 @@ const io     = new Server(server);
 
 // ─── Konfigurasi ────────────────────────────────────────────
 const PORT       = 3000;
-const SIM_MODE   = true;   // Ganti FALSE setelah ESP32 siap
+const SIM_MODE  = (process.env.SIM_MODE || 'true') !== 'false';   // Ganti FALSE setelah ESP32 siap
 const ESP_IP     = 'http://192.168.1.105';  // Ganti dengan IP ESP32 kamu
 const POLL_MS    = 2000;   // Interval baca sensor (ms)
 // ─────────────────────────────────────────────────────────────
