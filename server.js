@@ -8,7 +8,7 @@ const io = new Server(server, { cors: { origin: '*' } });
 
 const PORT = process.env.PORT || 3000;
 const SIM_MODE = true;
-const ESP_KEY = 'rumahku2025';
+const ESP_KEY = 'reyy123';
 const LED_NAMES = ['Merah', 'Kuning', 'Hijau', 'Biru', 'Putih'];
 
 app.use(express.static('public'));
