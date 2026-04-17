@@ -3,9 +3,9 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no"/>
-<title>ArduinoPanel</title>
+<title>ArduinoPanel — Kelompok 3</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800;900&family=DM+Mono:wght@400;500&family=Inter:wght@300;400;500&display=swap" rel="stylesheet"/>
 <style>
 :root {
   --bg     : #080a0c;
@@ -21,184 +21,212 @@
   --green  : #4caf94;
   --amber  : #e6a817;
   --red    : #e05555;
-  --led1   : #ff3b3b;
-  --led2   : #ffc107;
-  --led3   : #4caf50;
-  --led4   : #2196f3;
-  --led5   : #e0e0e0;
 }
 * { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
-body {
-  font-family: 'DM Mono', monospace;
-  background: var(--bg);
-  color: var(--text);
-  min-height: 100vh;
-}
-body::after {
-  content: '';
-  position: fixed; inset: 0; pointer-events: none; z-index: 999;
-  background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px);
-}
-header {
-  position: sticky; top: 0; z-index: 100;
-  background: rgba(8,10,12,0.95);
-  backdrop-filter: blur(20px);
+body { font-family: 'DM Mono', monospace; background: var(--bg); color: var(--text); min-height: 100vh; }
+body::after { content: ''; position: fixed; inset: 0; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.03) 2px, rgba(0,0,0,0.03) 4px); pointer-events: none; z-index: 999; }
+
+/* ── HERO HEADER ── */
+.hero {
+  background: linear-gradient(160deg, #0d1117 0%, #0a1628 50%, #070d1a 100%);
+  padding: 36px 20px 28px;
+  position: relative; overflow: hidden;
   border-bottom: 1px solid var(--line);
-  padding: 14px 18px;
-  display: flex; align-items: center; justify-content: space-between;
 }
-.logo {
+.hero::before {
+  content: '';
+  position: absolute; top: -60px; right: -60px;
+  width: 280px; height: 280px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(79,195,247,.12) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero::after {
+  content: '';
+  position: absolute; bottom: -40px; left: -40px;
+  width: 200px; height: 200px; border-radius: 50%;
+  background: radial-gradient(circle, rgba(76,175,148,.08) 0%, transparent 70%);
+  pointer-events: none;
+}
+.hero-inner { position: relative; z-index: 1; max-width: 460px; margin: 0 auto; }
+.hero-top { display: flex; align-items: flex-start; justify-content: space-between; margin-bottom: 20px; }
+.hero-brand {}
+.hero-badge {
+  font-family: 'DM Mono', monospace;
+  font-size: 9px; letter-spacing: .18em; text-transform: uppercase;
+  color: var(--accent); background: rgba(79,195,247,.1);
+  border: 1px solid rgba(79,195,247,.2); border-radius: 4px;
+  padding: 3px 8px; margin-bottom: 8px; display: inline-block;
+}
+.hero-title {
   font-family: 'Syne', sans-serif;
-  font-weight: 800; font-size: 17px;
-  color: var(--white); letter-spacing: -0.02em;
+  font-size: 28px; font-weight: 900;
+  color: var(--white); letter-spacing: -.03em; line-height: 1;
+  margin-bottom: 4px;
 }
-.logo em { color: var(--accent); font-style: normal; }
-.conn-row { display: flex; align-items: center; gap: 7px; font-size: 11px; color: var(--dim); }
-.dot { width: 7px; height: 7px; border-radius: 50%; background: var(--muted); transition: background .4s, box-shadow .4s; }
-.dot.on  { background: var(--green); box-shadow: 0 0 8px var(--green); }
-.dot.off { background: var(--red); }
-main { max-width: 460px; margin: 0 auto; padding: 18px 14px 90px; }
-.sec {
-  font-size: 9px; letter-spacing: .15em; text-transform: uppercase;
-  color: var(--muted); margin: 24px 0 10px; padding-left: 2px;
+.hero-title span { color: var(--accent); }
+.hero-sub { font-size: 11px; color: var(--dim); font-family: 'DM Mono', monospace; }
+.conn-pill {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.05); border: 1px solid rgba(255,255,255,.08);
+  border-radius: 99px; padding: 7px 12px;
+  font-size: 10px; font-weight: 500; color: var(--dim);
+  font-family: 'DM Mono', monospace;
 }
-.esp-card {
-  background: var(--bg2); border: 1px solid var(--line);
-  border-radius: 14px; padding: 14px 16px;
-  display: flex; align-items: center; justify-content: space-between;
+.cdot { width: 6px; height: 6px; border-radius: 50%; background: var(--muted); transition: background .4s; }
+.cdot.on  { background: var(--green); box-shadow: 0 0 6px var(--green); }
+.cdot.off { background: var(--red); }
+
+/* ── MEMBER CARDS ── */
+.members-wrap { margin-top: 4px; }
+.members-label {
+  font-size: 9px; letter-spacing: .14em; text-transform: uppercase;
+  color: var(--muted); margin-bottom: 10px;
+  font-family: 'DM Mono', monospace;
 }
-.esp-left strong { font-family: 'Syne', sans-serif; font-size: 15px; color: var(--white); }
-.esp-left small  { font-size: 11px; color: var(--dim); margin-top: 3px; display: block; }
-.esp-badge {
-  font-size: 9px; letter-spacing: .1em; font-weight: 500;
-  padding: 4px 10px; border-radius: 6px;
+.members-grid {
+  display: flex; flex-wrap: wrap; gap: 6px;
 }
-.badge-sim  { background: rgba(230,168,23,.1); color: var(--amber); border: 1px solid rgba(230,168,23,.2); }
-.badge-live { background: rgba(76,175,148,.1); color: var(--green); border: 1px solid rgba(76,175,148,.2); }
-.badge-off  { background: rgba(224,85,85,.1);  color: var(--red);   border: 1px solid rgba(224,85,85,.2); }
+.member-chip {
+  display: flex; align-items: center; gap: 6px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.07);
+  border-radius: 99px; padding: 5px 10px 5px 6px;
+  font-family: 'Inter', sans-serif;
+  font-size: 11px; font-weight: 400; color: var(--dim);
+  transition: border-color .2s, color .2s;
+}
+.member-chip:hover { border-color: rgba(79,195,247,.25); color: var(--text); }
+.avatar {
+  width: 20px; height: 20px; border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 9px; font-weight: 700; font-family: 'Syne', sans-serif;
+  flex-shrink: 0;
+}
+
+/* ── MAIN ── */
+main { max-width: 460px; margin: 0 auto; padding: 18px 16px 80px; }
+.sec { font-size: 9px; letter-spacing: .15em; text-transform: uppercase; color: var(--muted); margin: 24px 0 10px; font-family: 'DM Mono', monospace; }
+
+/* ── ESP card ── */
+.esp-card { background: var(--bg2); border: 1px solid var(--line); border-radius: 16px; padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; box-shadow: 0 1px 3px rgba(0,0,0,.3); }
+.esp-left strong { font-family: 'Syne', sans-serif; font-size: 15px; color: var(--white); display: block; }
+.esp-left small  { font-size: 10px; color: var(--dim); margin-top: 3px; display: block; }
+.esp-badge { font-size: 9px; font-weight: 500; letter-spacing: .08em; padding: 4px 10px; border-radius: 6px; font-family: 'DM Mono', monospace; }
+.badge-sim  { background: rgba(230,168,23,.1);  color: var(--amber); border: 1px solid rgba(230,168,23,.2); }
+.badge-live { background: rgba(76,175,148,.1);  color: var(--green); border: 1px solid rgba(76,175,148,.2); }
+.badge-off  { background: rgba(224,85,85,.1);   color: var(--red);   border: 1px solid rgba(224,85,85,.2); }
+
+/* ── Sensor ── */
 .sensor-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.s-card {
-  background: var(--bg2); border: 1px solid var(--line); border-radius: 14px;
-  padding: 14px; position: relative; overflow: hidden;
-}
-.s-card::before {
-  content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px;
-  background: linear-gradient(90deg, transparent, var(--accent), transparent);
-  opacity: .4;
-}
+.s-card { background: var(--bg2); border: 1px solid var(--line); border-radius: 14px; padding: 14px; position: relative; overflow: hidden; }
+.s-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 1px; background: linear-gradient(90deg, transparent, var(--accent), transparent); opacity: .3; }
 .s-val  { font-family: 'Syne', sans-serif; font-size: 26px; font-weight: 700; color: var(--accent); line-height: 1; }
 .s-unit { font-size: 10px; color: var(--muted); margin-top: 4px; }
 .s-lbl  { font-size: 10px; color: var(--dim); margin-top: 8px; }
+
+/* ── LED list ── */
 .led-list { display: flex; flex-direction: column; gap: 8px; }
 .led-row {
   background: var(--bg2); border: 1px solid var(--line); border-radius: 14px;
   padding: 14px 16px; display: flex; align-items: center; gap: 14px;
   cursor: pointer; transition: border-color .2s, background .2s, transform .1s;
-  user-select: none; -webkit-user-select: none;
+  user-select: none;
 }
 .led-row:active { transform: scale(0.98); }
-.led-row.active { border-color: var(--led-color); background: rgba(255,255,255,0.02); }
-.led-bulb {
-  width: 28px; height: 28px; border-radius: 50%;
-  background: var(--bg3); border: 2px solid var(--line);
-  flex-shrink: 0; transition: background .25s, box-shadow .25s, border-color .25s;
-}
-.led-row.active .led-bulb {
-  background: var(--led-color);
-  border-color: var(--led-color);
-  box-shadow: 0 0 14px var(--led-color), 0 0 30px color-mix(in srgb, var(--led-color) 30%, transparent);
-}
+.led-row.active { border-color: var(--led-color); background: rgba(255,255,255,.02); }
+.led-bulb { width: 28px; height: 28px; border-radius: 50%; background: var(--bg3); border: 2px solid var(--line); flex-shrink: 0; transition: background .25s, box-shadow .25s, border-color .25s; }
+.led-row.active .led-bulb { background: var(--led-color); border-color: var(--led-color); box-shadow: 0 0 14px var(--led-color); }
 .led-info { flex: 1; }
 .led-name  { font-family: 'Syne', sans-serif; font-size: 14px; font-weight: 600; color: var(--white); }
 .led-state { font-size: 10px; color: var(--muted); margin-top: 2px; }
 .led-row.active .led-state { color: var(--led-color); }
-.toggle {
-  width: 40px; height: 22px; border-radius: 11px;
-  background: var(--bg3); border: 1px solid var(--line);
-  position: relative; flex-shrink: 0; transition: background .25s, border-color .25s;
-}
-.toggle::after {
-  content: ''; position: absolute;
-  top: 3px; left: 3px; width: 14px; height: 14px;
-  border-radius: 50%; background: var(--muted);
-  transition: transform .25s, background .25s;
-}
-.led-row.active .toggle { border-color: var(--led-color); background: color-mix(in srgb, var(--led-color) 20%, transparent); }
+.toggle { width: 40px; height: 22px; border-radius: 11px; background: var(--bg3); border: 1px solid var(--line); position: relative; flex-shrink: 0; transition: background .25s, border-color .25s; }
+.toggle::after { content: ''; position: absolute; top: 3px; left: 3px; width: 14px; height: 14px; border-radius: 50%; background: var(--muted); transition: transform .25s, background .25s; }
+.led-row.active .toggle { border-color: var(--led-color); background: rgba(255,255,255,.06); }
 .led-row.active .toggle::after { transform: translateX(18px); background: var(--led-color); }
+
+/* ── All buttons ── */
 .btn-row { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-.btn {
-  padding: 14px; border: 1px solid var(--line); border-radius: 12px;
-  background: var(--bg2); color: var(--text);
-  font-family: 'DM Mono', monospace; font-size: 12px;
-  cursor: pointer; transition: background .2s, border-color .2s, transform .1s;
-  display: flex; align-items: center; justify-content: center; gap: 8px;
-}
+.btn { padding: 14px; border: 1px solid var(--line); border-radius: 12px; background: var(--bg2); color: var(--text); font-family: 'DM Mono', monospace; font-size: 12px; cursor: pointer; transition: background .2s, border-color .2s, transform .1s; display: flex; align-items: center; justify-content: center; gap: 8px; }
 .btn:active { transform: scale(0.97); }
-.btn-on  { border-color: rgba(76,175,148,.3); color: var(--green); }
+.btn-on  { border-color: rgba(76,175,148,.3);  color: var(--green); }
+.btn-off { border-color: rgba(224,85,85,.3);   color: var(--red); }
 .btn-on:active  { background: rgba(76,175,148,.08); }
-.btn-off { border-color: rgba(224,85,85,.3); color: var(--red); }
 .btn-off:active { background: rgba(224,85,85,.08); }
-.cmd-wrap {
-  background: var(--bg2); border: 1px solid var(--line); border-radius: 14px;
-  padding: 4px 4px 4px 16px; display: flex; align-items: center; gap: 8px;
-  transition: border-color .2s;
-}
+
+/* ── Command ── */
+.cmd-wrap { background: var(--bg2); border: 1px solid var(--line); border-radius: 14px; padding: 4px 4px 4px 16px; display: flex; align-items: center; gap: 8px; transition: border-color .2s; }
 .cmd-wrap:focus-within { border-color: var(--accent); }
-.cmd-input {
-  flex: 1; background: none; border: none; outline: none;
-  font-family: 'DM Mono', monospace; font-size: 13px;
-  color: var(--white); padding: 12px 0; caret-color: var(--accent);
-}
+.cmd-input { flex: 1; background: none; border: none; outline: none; font-family: 'DM Mono', monospace; font-size: 13px; color: var(--white); padding: 10px 0; caret-color: var(--accent); }
 .cmd-input::placeholder { color: var(--muted); }
-.cmd-btn {
-  background: var(--accent); color: var(--bg); border: none;
-  border-radius: 10px; padding: 11px 16px;
-  font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500;
-  letter-spacing: .06em; cursor: pointer; transition: opacity .2s, transform .1s;
-}
+.cmd-btn { background: var(--accent); color: var(--bg); border: none; border-radius: 10px; padding: 10px 16px; font-family: 'DM Mono', monospace; font-size: 11px; font-weight: 500; cursor: pointer; transition: opacity .2s, transform .1s; }
 .cmd-btn:active { transform: scale(0.96); opacity: .85; }
-.log-box {
-  background: var(--bg1); border: 1px solid var(--line); border-radius: 14px;
-  height: 170px; overflow-y: auto; padding: 12px;
-  font-size: 11px; line-height: 1.9;
-  scrollbar-width: thin; scrollbar-color: var(--line) transparent;
-}
+
+/* ── Log ── */
+.log-box { background: var(--bg1); border: 1px solid var(--line); border-radius: 14px; height: 170px; overflow-y: auto; padding: 12px; font-size: 11px; line-height: 1.9; scrollbar-width: thin; scrollbar-color: var(--line) transparent; }
 .le { display: flex; gap: 10px; }
 .lt { color: var(--muted); flex-shrink: 0; }
 .lm { color: var(--dim); word-break: break-all; }
 .lm.ok   { color: var(--green); }
 .lm.err  { color: var(--red); }
 .lm.info { color: var(--accent); }
+
+/* ── Footer ── */
+.footer {
+  text-align: center; padding: 24px 20px;
+  font-size: 10px; color: var(--muted);
+  font-family: 'DM Mono', monospace;
+  letter-spacing: .06em; border-top: 1px solid var(--line);
+}
+
+/* ── Animations ── */
 @keyframes fadeUp { from { opacity:0; transform:translateY(8px); } to { opacity:1; transform:translateY(0); } }
-@keyframes pop { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
+@keyframes pop    { 0%,100%{transform:scale(1)} 50%{transform:scale(1.1)} }
 .pop { animation: pop .2s ease; }
-main > * { animation: fadeUp .3s ease both; }
-main > *:nth-child(2)  { animation-delay: .04s; }
-main > *:nth-child(3)  { animation-delay: .08s; }
-main > *:nth-child(4)  { animation-delay: .12s; }
-main > *:nth-child(5)  { animation-delay: .16s; }
-main > *:nth-child(6)  { animation-delay: .20s; }
-main > *:nth-child(7)  { animation-delay: .24s; }
-main > *:nth-child(8)  { animation-delay: .28s; }
+.hero-inner, main > * { animation: fadeUp .35s ease both; }
+main > *:nth-child(2)  { animation-delay:.04s }
+main > *:nth-child(3)  { animation-delay:.08s }
+main > *:nth-child(4)  { animation-delay:.12s }
+main > *:nth-child(5)  { animation-delay:.16s }
+main > *:nth-child(6)  { animation-delay:.20s }
+main > *:nth-child(7)  { animation-delay:.24s }
+main > *:nth-child(8)  { animation-delay:.28s }
 </style>
 </head>
 <body>
-<header>
-  <div class="logo">Arduino<em>Panel</em></div>
-  <div class="conn-row">
-    <div class="dot" id="dot"></div>
-    <span id="conn-txt">Menghubungkan</span>
+
+<!-- ── HERO ── -->
+<div class="hero">
+  <div class="hero-inner">
+    <div class="hero-top">
+      <div class="hero-brand">
+        <div class="hero-badge">Kelompok 3</div>
+        <div class="hero-title">Arduino<span>Panel</span></div>
+        <div class="hero-sub">NodeMCU ESP8266 Controller</div>
+      </div>
+      <div class="conn-pill">
+        <div class="cdot" id="cdot"></div>
+        <span id="conn-txt">Konek...</span>
+      </div>
+    </div>
+    <div class="members-wrap">
+      <div class="members-label">Anggota tim</div>
+      <div class="members-grid" id="members"></div>
+    </div>
   </div>
-</header>
+</div>
+
 <main>
+
   <p class="sec">Status perangkat</p>
   <div class="esp-card">
     <div class="esp-left">
       <strong>NodeMCU ESP8266</strong>
       <small id="esp-sub">Mengecek koneksi...</small>
     </div>
-    <span class="esp-badge badge-sim" id="esp-badge">SIMULASI</span>
+    <span class="esp-badge badge-sim" id="esp-badge">—</span>
   </div>
+
   <p class="sec">Data sensor A0</p>
   <div class="sensor-row">
     <div class="s-card">
@@ -212,24 +240,58 @@ main > *:nth-child(8)  { animation-delay: .28s; }
       <div class="s-lbl">Nilai ADC</div>
     </div>
   </div>
+
   <p class="sec">Kontrol 5 LED</p>
   <div class="led-list" id="led-list"></div>
+
   <p class="sec">Kontrol semua</p>
   <div class="btn-row">
-    <button class="btn btn-on"  onclick="sendCmd('ALL_ON')">▶ Semua ON</button>
-    <button class="btn btn-off" onclick="sendCmd('ALL_OFF')">■ Semua OFF</button>
+    <button class="btn btn-on"  onclick="allOn()">▶ Semua ON</button>
+    <button class="btn btn-off" onclick="allOff()">■ Semua OFF</button>
   </div>
+
   <p class="sec">Perintah custom</p>
   <div class="cmd-wrap">
     <input class="cmd-input" id="cmd-in" placeholder="Contoh: LED2_ON"
            onkeydown="if(event.key==='Enter')sendCustom()"/>
     <button class="cmd-btn" onclick="sendCustom()">KIRIM</button>
   </div>
+
   <p class="sec">Log aktivitas</p>
   <div class="log-box" id="log"></div>
+
 </main>
+
+<div class="footer">KELOMPOK 3 &nbsp;·&nbsp; NodeMCU ESP8266 &nbsp;·&nbsp; ArduinoPanel</div>
+
 <script src="/socket.io/socket.io.js"></script>
 <script>
+// ── Member data ───────────────────────────────────────────────────
+const TEAM = [
+  { name:'Moch Afsya', color:'#4fc3f7', bg:'rgba(79,195,247,.15)' },
+  { name:'M Jefri',    color:'#4caf94', bg:'rgba(76,175,148,.15)' },
+  { name:'Hanum',      color:'#f48fb1', bg:'rgba(244,143,177,.15)' },
+  { name:'Lisna',      color:'#ce93d8', bg:'rgba(206,147,216,.15)' },
+  { name:'Lia',        color:'#80cbc4', bg:'rgba(128,203,196,.15)' },
+  { name:'Kayla',      color:'#ffcc02', bg:'rgba(255,204,2,.15)' },
+  { name:'M Akbar',    color:'#ff8a65', bg:'rgba(255,138,101,.15)' },
+  { name:'Sultan',     color:'#a5d6a7', bg:'rgba(165,214,167,.15)' },
+];
+
+// Build member chips
+const mGrid = document.getElementById('members');
+TEAM.forEach(m => {
+  const chip = document.createElement('div');
+  chip.className = 'member-chip';
+  const initials = m.name.split(' ').map(w => w[0]).join('').substring(0,2).toUpperCase();
+  chip.innerHTML = `
+    <div class="avatar" style="background:${m.bg};color:${m.color};border:1px solid ${m.color}33">${initials}</div>
+    <span>${m.name}</span>
+  `;
+  mGrid.appendChild(chip);
+});
+
+// ── LED config ────────────────────────────────────────────────────
 const LED_CONFIG = [
   { name:'Merah',  color:'#ff3b3b', pin:'D1' },
   { name:'Kuning', color:'#ffc107', pin:'D2' },
@@ -238,14 +300,14 @@ const LED_CONFIG = [
   { name:'Putih',  color:'#e0e0e0', pin:'D7' },
 ];
 let leds = [false,false,false,false,false];
+
 const list = document.getElementById('led-list');
 LED_CONFIG.forEach((cfg, i) => {
   const row = document.createElement('div');
-  row.className = 'led-row';
-  row.id = 'led-row-' + i;
+  row.className = 'led-row'; row.id = 'led-row-' + i;
   row.style.setProperty('--led-color', cfg.color);
   row.innerHTML = `
-    <div class="led-bulb" id="bulb-${i}"></div>
+    <div class="led-bulb"></div>
     <div class="led-info">
       <div class="led-name">${cfg.name}</div>
       <div class="led-state" id="st-${i}">OFF · Pin ${cfg.pin}</div>
@@ -255,99 +317,77 @@ LED_CONFIG.forEach((cfg, i) => {
   row.onclick = () => toggleLed(i);
   list.appendChild(row);
 });
+
+// ── Socket ────────────────────────────────────────────────────────
 const socket = io();
-socket.on('connect', () => {
-  setConn(true);
-  addLog('Terhubung ke server', 'ok');
-});
-socket.on('disconnect', () => {
-  setConn(false);
-  addLog('Koneksi terputus', 'err');
-});
-socket.on('state-update', (s) => {
-  if (s.leds)   updateLeds(s.leds);
-  if (s.sensor) updateSensor(s.sensor);
-});
-socket.on('sensor-data',  (d) => updateSensor(d));
-socket.on('esp-reply',    (m) => addLog('← ' + m, 'ok'));
-socket.on('log',          (e) => addLog(e.msg, e.type));
-socket.on('log-history',  (arr) => arr.forEach(e => addLog(e.msg, e.type)));
-socket.on('esp-status',   (d) => updateEspBadge(d.online ? 'live' : 'off'));
-async function checkStatus() {
-  try {
-    const r = await fetch('/api/status');
-    const d = await r.json();
-    if (d.simMode) {
-      updateEspBadge('sim');
-      document.getElementById('esp-sub').textContent = 'Mode simulasi — ESP8266 belum tersambung';
-    } else {
-      updateEspBadge(d.espOnline ? 'live' : 'off');
-      document.getElementById('esp-sub').textContent = d.espOnline ? 'Online · polling aktif' : 'Offline — belum ada koneksi';
-    }
-    if (d.leds)   updateLeds(d.leds);
-    if (d.sensor) updateSensor(d.sensor);
-  } catch {}
+socket.on('connect',      () => { setConn(true);  addLog('Terhubung ke server','ok'); });
+socket.on('disconnect',   () => { setConn(false); addLog('Koneksi terputus','err'); });
+socket.on('state-update', s  => { if(s.leds) updateLeds(s.leds); if(s.sensor) updateSensor(s.sensor); });
+socket.on('sensor-data',  d  => updateSensor(d));
+socket.on('esp-reply',    m  => addLog('← '+m,'ok'));
+socket.on('log',          e  => addLog(e.msg,e.type));
+socket.on('log-history',  arr=> arr.forEach(e=>addLog(e.msg,e.type)));
+socket.on('esp-status',   d  => updateEspBadge(d.online?'live':'off'));
+
+async function checkStatus(){
+  try{
+    const d=await(await fetch('/api/status')).json();
+    if(d.simMode){ updateEspBadge('sim'); document.getElementById('esp-sub').textContent='Mode simulasi aktif'; }
+    else if(d.espOnline){ updateEspBadge('live'); document.getElementById('esp-sub').textContent='Online · polling aktif'; }
+    else{ updateEspBadge('off'); document.getElementById('esp-sub').textContent='Offline — belum ada koneksi'; }
+    if(d.leds) updateLeds(d.leds);
+    if(d.sensor) updateSensor(d.sensor);
+  }catch{}
 }
-checkStatus();
-setInterval(checkStatus, 6000);
-function setConn(on) {
-  document.getElementById('dot').className = 'dot ' + (on ? 'on' : 'off');
-  document.getElementById('conn-txt').textContent = on ? 'Terhubung' : 'Terputus';
+checkStatus(); setInterval(checkStatus,6000);
+
+function setConn(on){
+  document.getElementById('cdot').className='cdot '+(on?'on':'off');
+  document.getElementById('conn-txt').textContent=on?'Online':'Offline';
 }
-function updateEspBadge(type) {
-  const el = document.getElementById('esp-badge');
-  const map = { sim: ['SIMULASI','badge-sim'], live: ['ONLINE','badge-live'], off: ['OFFLINE','badge-off'] };
-  const [label, cls] = map[type] || map.off;
-  el.textContent = label;
-  el.className = 'esp-badge ' + cls;
+function updateEspBadge(t){
+  const el=document.getElementById('esp-badge');
+  const m={sim:['SIMULASI','badge-sim'],live:['ONLINE','badge-live'],off:['OFFLINE','badge-off']};
+  const [label,cls]=m[t]||m.off;
+  el.textContent=label; el.className='esp-badge '+cls;
 }
-function updateSensor(d) {
-  const setVal = (id, v) => {
-    const el = document.getElementById(id);
-    if (el && el.textContent !== String(v)) {
-      el.textContent = v;
-      el.classList.remove('pop'); void el.offsetWidth; el.classList.add('pop');
-    }
-  };
-  setVal('s-volt', d.voltage !== undefined ? d.voltage : '—');
-  setVal('s-raw',  d.raw     !== undefined ? d.raw     : '—');
+function updateSensor(d){
+  const set=(id,v)=>{const el=document.getElementById(id);if(el&&el.textContent!==String(v)){el.textContent=v;el.classList.remove('pop');void el.offsetWidth;el.classList.add('pop');}};
+  set('s-volt',d.voltage!==undefined?d.voltage:'—');
+  set('s-raw', d.raw!==undefined?d.raw:'—');
 }
-function updateLeds(arr) {
-  arr.forEach((on, i) => {
-    leds[i] = on;
-    const row = document.getElementById('led-row-' + i);
-    const st  = document.getElementById('st-' + i);
-    if (!row) return;
-    row.classList.toggle('active', on);
-    st.textContent = (on ? 'ON' : 'OFF') + ' · Pin ' + LED_CONFIG[i].pin;
+function updateLeds(arr){
+  arr.forEach((on,i)=>{
+    leds[i]=on;
+    const row=document.getElementById('led-row-'+i),st=document.getElementById('st-'+i);
+    if(row)row.classList.toggle('active',on);
+    if(st) st.textContent=(on?'ON':'OFF')+' · Pin '+LED_CONFIG[i].pin;
   });
 }
-function toggleLed(i) {
-  const next = !leds[i];
-  leds[i] = next;
-  const row = document.getElementById('led-row-' + i);
-  const st  = document.getElementById('st-' + i);
-  if (row) row.classList.toggle('active', next);
-  if (st)  st.textContent = (next ? 'ON' : 'OFF') + ' · Pin ' + LED_CONFIG[i].pin;
-  sendCmd('LED' + (i+1) + '_' + (next ? 'ON' : 'OFF'));
+function toggleLed(i){
+  const next=!leds[i]; leds[i]=next;
+  const row=document.getElementById('led-row-'+i),st=document.getElementById('st-'+i);
+  if(row)row.classList.toggle('active',next);
+  if(st) st.textContent=(next?'ON':'OFF')+' · Pin '+LED_CONFIG[i].pin;
+  sendCmd('LED'+(i+1)+'_'+(next?'ON':'OFF'));
 }
-function sendCmd(cmd) {
-  addLog('→ ' + cmd, 'info');
-  socket.emit('send-command', cmd);
+function allOn(){
+  leds=[true,true,true,true,true]; updateLeds(leds); sendCmd('ALL_ON');
 }
-function sendCustom() {
-  const inp = document.getElementById('cmd-in');
-  const val = inp.value.trim().toUpperCase();
-  if (val) { sendCmd(val); inp.value = ''; }
+function allOff(){
+  leds=[false,false,false,false,false]; updateLeds(leds); sendCmd('ALL_OFF');
 }
-function addLog(msg, type) {
-  const box = document.getElementById('log');
-  const now = new Date().toLocaleTimeString('id-ID');
-  const row = document.createElement('div');
-  row.className = 'le';
-  row.innerHTML = '<span class="lt">' + now + '</span><span class="lm ' + (type||'') + '">' + msg + '</span>';
-  box.insertBefore(row, box.firstChild);
-  while (box.children.length > 80) box.removeChild(box.lastChild);
+function sendCmd(cmd){ addLog('→ '+cmd,'info'); socket.emit('send-command',cmd); }
+function sendCustom(){
+  const inp=document.getElementById('cmd-in'),val=inp.value.trim().toUpperCase();
+  if(val){ sendCmd(val); inp.value=''; }
+}
+function addLog(msg,type){
+  const box=document.getElementById('log'),now=new Date().toLocaleTimeString('id-ID');
+  const row=document.createElement('div'); row.className='le';
+  row.innerHTML='<span class="lt">'+now+'</span><span class="lm '+(type||'')+'">'+msg+'</span>';
+  box.insertBefore(row,box.firstChild);
+  while(box.children.length>80)box.removeChild(box.lastChild);
 }
 </script>
 </body>
